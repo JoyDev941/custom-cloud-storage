@@ -1,5 +1,5 @@
 const dropZone = document.getElementById("drop-zone"); /*looks for id tag in html file */
-const fileInput = document.getElementById("fileInput");
+const fileInput = document.getElementById("fileInput"); /*store*/
 
 // Upload function
 function uploadFile(file) {

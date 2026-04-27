@@ -1,7 +1,7 @@
 body{
     margin: 0px;
     padding: 0px;
-    background-color: #1B263B;
+    background-color: #718355;
 }
 
 .upper_section{
@@ -10,7 +10,6 @@ body{
 
     display: flex;
 
-    border: 6px solid black;
 }
 
 .card {
@@ -21,7 +20,8 @@ body{
     display: flex;
     flex-direction: column;
 
-    background-color: #415A77;
+    background-color: #87986A;
+    box-shadow: 8px -8px 20px rgba(0, 0, 0, 0.2);
     border-radius: 15px
 }
 
@@ -38,9 +38,8 @@ body{
     margin-left: 10%;
     height: 25px;
     width: 80%;
-    background-color: #415A77;
-    color: lightgray;
-    border: 1px solid #415A77;
+    background-color: #87986A;
+    border: 1px solid #87986A;
     border-bottom: 1px solid white;
     outline: none;
     transition: border-color 0.3s ease;
@@ -51,9 +50,8 @@ body{
     margin-left: 10%;
     height: 25px;
     width: 80%;
-    background-color: #415A77;
-    color: lightgray;
-    border: 1px solid #415A77;
+    background-color: #87986A;
+    border: 1px solid #87986A;
     border-bottom: 1px solid white;
     outline: none;
     transition: border-color 0.3s ease;
@@ -65,11 +63,23 @@ button{
     margin-right: 35px;
     height: 32px;
     width: 55px;
-    border-radius: 5px;
+    border-color: 0px solid white;
+    background-color: #4f5e3c;
+    border-radius: 2px;
+}
+
+input::placeholder{
+    color: rgba(200, 255, 200, 0.5);
 }
 
 input:focus{
-    border: 1px solid #415A77;
-    border-bottom: 1px solid red;
+    border: 1px solid #87986A;
+    border-bottom: 1px solid #2dd4bf;
 }
 
+.footer{
+    height: 400px;
+    width: 100%;
+    /*background-color: #5f6f49;*/
+    background-color: #87986A;
+}

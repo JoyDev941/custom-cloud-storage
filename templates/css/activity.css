@@ -1,0 +1,33 @@
+body{
+  margin: 0px;
+  padding: 0px;
+  background-color: #B5C99A;
+  display: flex;
+  flex-direction: row;
+}
+
+.searchbar{
+  margin-top: 5%;
+  margin-left: 7%;
+  width: 85%;
+  height: 30px;
+}
+
+.menu-tab{
+  width: 20%;
+  height: 100vh;
+  background-color: #718355;
+  border-right: 2px solid grey;
+}
+
+.activity-tab{
+  width: 60%;
+  height: 100vh;
+}
+
+.note-tab{
+  width: 20%;
+  height: 100vh;
+  background-color: #718355;
+  border-left: 2px solid grey;
+}

@@ -19,7 +19,7 @@ function sendData(){
         console.log("Server response: ", result);
 
         if(result.status === "pass"){
-            window.location.href = "home.html";
+            window.location.href = "activity.html";
         }else{
             alert("login failed");
         }

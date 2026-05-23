@@ -3,6 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
 import psycopg2
 import shutil
 import os
@@ -20,6 +22,8 @@ cur = conn.cursor()
 
 
 ROOT_FOLDER = "root" #temporary must update based on user logged in the time
+SECRET_KEY = "temp"#os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
 os.makedirs(ROOT_FOLDER, exist_ok=True)
 
 app = FastAPI()
@@ -44,6 +48,42 @@ def shuteverything():
 def redirect():
     return RedirectResponse("/login")
 
+@app.get("/testing")
+def message():
+    return "hello"
+
+#---------------------------------------------------------------------
+
+#----------------------------token-----------------------------------------
+
+def create_token(username : str):
+    data = {"username" : username}
+    payload = data.copy()
+    payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=1)
+
+    encode_token = jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+    return encode_token
+
+def decode_token(token : str):
+    try:
+        return jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=ALGORITHM
+        )
+    except ExpireSignatureError:
+        #create logic of:
+        # if user press quit then redirect
+        # else create new token
+        return "none"
+
+
+#---------------------------------------------------------------------
 
 #----------------------------registration-----------------------------------------
 def create_user_area(username : str):
@@ -54,6 +94,7 @@ def register(newData : dict):
 
     username = newData["username"]
     password = newData["password"]
+    directory = "root/"+newData["username"]
 
     #must add a check logic, otherwise it might cause redundancy errors
 
@@ -66,13 +107,14 @@ def register(newData : dict):
     )
     conn.commit()
 
-    create_user_area(username)
+    create_user_area(username) #it doesnt work
 
 #---------------------------------------------------------------------
     
 #-----------------------------authentication----------------------------------------
 @app.post("/authenticate") #authentication {basic}
 def authenticate(data : dict):
+    #functional
     username = data["username"]
     password = data["password"]
     #go to database, check for user authenticate with password and set new directory
@@ -81,17 +123,17 @@ def authenticate(data : dict):
         "SELECT password FROM users WHERE username = %s;",
         (username,)
     )
-
     user = cur.fetchone()
 
-    if not user: #if user does not exist
-        return {"status" : "Does not exists the user"}
+    if not user:
+        return {"Status" : "User Does not exist"}
     else:
-        UserPassword = user[0] #store password of matched user
-        if password == UserPassword: #if password matches the database provided one
-            return {"status" : "pass"}
+        if user[0] == password:
+            #create token
+            token = create_token(username)
+            return {"Status" : "Authentication passed", "token" : token}
         else:
-            return {"status" : "Wrong Password"}
+            return {"Status" : "Authentication Failed"}
 
 #---------------------------------------------------------------------
 
@@ -104,3 +146,21 @@ async def upload_file(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     return {"message": "uploaded successfully", "filename": file.filename}
+
+
+@app.post("/garage") #should show the contents of the root directory, to be used when logged in
+def showGarage(token : dict):
+    user_data = decode_token(token)
+    username = user_data["user"]
+
+    cur.execute(
+        "SELECT storage_path FROM users WHERE username=%s;",
+        (username,)
+    )
+
+    garage_location= cur.fetchone()
+    garage_content = os.listdir(garage_location[0])
+
+
+
+    

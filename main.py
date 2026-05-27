@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request, UploadFile, File
-from fastapi.staticfiles import StaticFiles
+#from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
@@ -17,7 +16,6 @@ conn = psycopg2.connect(
     host="localhost",
     port="5432"
 )
-
 cur = conn.cursor()
 
 
@@ -27,8 +25,6 @@ ALGORITHM = "HS256"
 os.makedirs(ROOT_FOLDER, exist_ok=True)
 
 app = FastAPI()
-#/login, the page is mounted to that url path, templates is location of web files, components is just name
-app.mount("/login", StaticFiles(directory="templates", html=True), name="components")
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,21 +39,39 @@ def shuteverything():
     conn.close()
     print("bye bye")
 
-
-@app.get("/") #redirect to mounted page
-def redirect():
-    return RedirectResponse("/login")
-
 @app.get("/testing")
 def message():
     return "hello"
+
+
+#as soon as the user logs in the first the first request is going to be 
+@app.post("/UserCave")
+def check_current_dir(data: dict):
+    user_data = decode_token(data["token"])
+    user_dir = "./root"+user_data["current_dir"] #this should become /root/admin testing cir
+    user_content = os.listdir(user_dir) #should return text01 as a list
+
+    #correct procedure would be to simply send back the content only not rewrite a whole token and send it back
+    # cave_data = {
+    #     "username" : user_data["username"],
+    #     "current_dir" : user_data["current_dir"],
+    #     "content" : user_content,
+    #     "exp" : user_data["exp"]
+    # }
+
+
+    return {"content" : user_content}
 
 #---------------------------------------------------------------------
 
 #----------------------------token-----------------------------------------
 
 def create_token(username : str):
-    data = {"username" : username}
+    user_dir = "/" + username
+    data = {
+        "username" : username,
+        "current_dir" : user_dir,
+        }
     payload = data.copy()
     payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=1)
 
@@ -131,9 +145,9 @@ def authenticate(data : dict):
         if user[0] == password:
             #create token
             token = create_token(username)
-            return {"Status" : "Authentication passed", "token" : token}
+            return {"Status" : "ok", "token" : token}
         else:
-            return {"Status" : "Authentication Failed"}
+            return {"Status" : "failed"}
 
 #---------------------------------------------------------------------
 

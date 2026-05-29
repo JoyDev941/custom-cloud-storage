@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Request, UploadFile, File
-#from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import datetime, timedelta, timezone
 import psycopg2
 import shutil
@@ -47,20 +46,15 @@ def message():
 #as soon as the user logs in the first the first request is going to be 
 @app.post("/UserCave")
 def check_current_dir(data: dict):
-    user_data = decode_token(data["token"])
-    user_dir = "./root"+user_data["current_dir"] #this should become /root/admin testing cir
-    user_content = os.listdir(user_dir) #should return text01 as a list
+    try:
+        user_data = decode_token(data["token"])
+        #check for user directory in postgress not in token
+        user_dir = "./root"+user_data["current_dir"] #this should become /root/admin testing cir
+        user_content = os.listdir(user_dir) #should return text01 as a list
+        return {"content" : user_content}
+    except ExpiredSignatureError:
+        return {"status" : "expired token"}
 
-    #correct procedure would be to simply send back the content only not rewrite a whole token and send it back
-    # cave_data = {
-    #     "username" : user_data["username"],
-    #     "current_dir" : user_data["current_dir"],
-    #     "content" : user_content,
-    #     "exp" : user_data["exp"]
-    # }
-
-
-    return {"content" : user_content}
 
 #---------------------------------------------------------------------
 
@@ -84,17 +78,11 @@ def create_token(username : str):
     return encode_token
 
 def decode_token(token : str):
-    try:
         return jwt.decode(
             token,
             SECRET_KEY,
             algorithms=ALGORITHM
         )
-    except ExpireSignatureError:
-        #create logic of:
-        # if user press quit then redirect
-        # else create new token
-        return "none"
 
 
 #---------------------------------------------------------------------

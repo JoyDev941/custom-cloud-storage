@@ -1,0 +1,16 @@
+{
+  "user": {
+    "credentials": {
+      "username": "admin"
+    },
+
+    "role": "administrator",
+    "plan": {
+      "storage_limit_gb": 15
+    },
+
+    "contact": {
+      "email": "Joynalabdul2004@gmail.com"
+    }
+  }
+}

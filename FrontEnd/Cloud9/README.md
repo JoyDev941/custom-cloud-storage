@@ -1,0 +1,2 @@
+Attribution document:
+<a href="https://www.magnific.com/free-ai-image/autumn-sunset-colorful-forest-painted-image-generated-by-ai_40970870.htm#fromView=keyword&page=1&position=0&uuid=40dcf3f7-6d41-40df-b18f-fa9c9727081c&query=4k+nature+art">Image by vecstock on Magnific</a>

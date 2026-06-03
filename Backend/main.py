@@ -28,8 +28,9 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 @app.on_event("shutdown")
@@ -46,11 +47,17 @@ def message():
 #as soon as the user logs in the first the first request is going to be 
 @app.post("/UserCave")
 def check_current_dir(data: dict):
+    #{"username" : str, "current_dir" : str, exp : int}
     try:
         user_data = decode_token(data["token"])
+
+        checkfolder = user_data["current_dir"]
+
         #check for user directory in postgress not in token
-        user_dir = "./root"+user_data["current_dir"] #this should become /root/admin testing cir
+        user_dir = "./root/"+user_data["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
+        
         user_content = os.listdir(user_dir) #should return text01 as a list
+        
         return {"content" : user_content}
     except ExpiredSignatureError:
         return {"status" : "expired token"}
@@ -60,11 +67,10 @@ def check_current_dir(data: dict):
 
 #----------------------------token-----------------------------------------
 
-def create_token(username : str):
-    user_dir = "/" + username
+def create_token(username : str): # postgress["username"] -> create_token() -> Store location info -> return packaged token
     data = {
         "username" : username,
-        "current_dir" : user_dir,
+        "current_dir" : "/",
         }
     payload = data.copy()
     payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=1)
@@ -98,7 +104,7 @@ def register(newData : dict):
     password = newData["password"]
     directory = "root/"+newData["username"]
 
-    #must add a check logic, otherwise it might cause redundancy errors
+    #must add a check login, otherwise it might cause redundancy errors
 
     cur.execute(
         """

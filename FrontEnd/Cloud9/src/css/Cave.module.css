@@ -1,0 +1,38 @@
+/* Cave.module.css */
+.wrapper {
+  margin: 0px;
+  padding: 0px;
+  background-color: white;
+  min-height: 100vh; /* to fill the full screen */
+}
+
+.navigationBar{
+  width: 100vw;
+  height: 60px;
+  background-color: #FF281B;
+  border-bottom: solid 5px black;
+}
+
+.mainContent{
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+
+.leftBar{
+  width: 250px;
+  height: auto;
+  background-color: #FF281B;
+  border-right: solid 5px black;
+}
+
+.userContent{
+  background-color: #FF746C;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+

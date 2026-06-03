@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/loginCard.css"
 
 function LoginCard(){
-        const [username, setUsername] = useState("")
-        const [password, setPassword] = useState("")
+    const navigate = useNavigate()
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
 
     function sendDetails(){
-        fetch("http://127.0.0.1:52026/authenticate",{
+        fetch("http://192.168.68.102:52026/authenticate",{
             method: "POST",
             headers: {"Content-Type" : "application/json"},
             body: JSON.stringify({
@@ -16,7 +18,10 @@ function LoginCard(){
         })// send post request
         .then(res => res.json())
         .then(data => {
-            console.log(data.token)
+            if(data.token){
+                localStorage.setItem('token', data.token)
+                navigate('/UserCave')
+            }
         })//After server process request
 
     }//API request function

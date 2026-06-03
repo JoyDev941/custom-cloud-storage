@@ -1,0 +1,14 @@
+/* LoginPage.module.css */
+body{
+  margin: 0px;
+  padding: 0px;
+}
+.wrapper {
+  margin: 0px;
+  padding: 0px;
+  background-image: url("../assets/autumn-sunset-colorful-forest-painted-image-generated-by-ai.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import datetime, timedelta, timezone
@@ -156,19 +157,19 @@ async def upload_file(file: UploadFile = File(...)):
     return {"message": "uploaded successfully", "filename": file.filename}
 
 
-@app.post("/garage") #should show the contents of the root directory, to be used when logged in
-def showGarage(token : dict):
-    user_data = decode_token(token)
-    username = user_data["user"]
 
-    cur.execute(
-        "SELECT storage_path FROM users WHERE username=%s;",
-        (username,)
-    )
+@app.post("/Downl")
+def Downl(data : dict):
+    #{token : token, filename: selectedFile}
+    try:
+        user_data = decode_token(data["token"])
 
-    garage_location= cur.fetchone()
-    garage_content = os.listdir(garage_location[0])
+        filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
+        return FileResponse(
+            path=filelocation,
+            filename=data["filename"],
+            media_type="application/octet-stream"
+        )
 
-
-
-    
+    except ExpiredSignatureError:
+        return{"status" : "Token Expired"}

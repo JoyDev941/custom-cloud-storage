@@ -32,7 +32,13 @@
   flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  align-items: start;
   gap: 16px;
   padding: 20px;
+}
+
+.selected{
+  border: 2px solid blue;
+  background-color: lightblue;
 }
 

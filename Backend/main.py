@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,21 +8,6 @@ import psycopg2
 import shutil
 import os
 #pip install multipart
-
-conn = psycopg2.connect(
-    dbname="user_system",
-    user="postgres",
-    password="hornup-kofzyH-hukmy8",
-    host="localhost",
-    port="5432"
-)
-cur = conn.cursor()
-
-
-ROOT_FOLDER = "root" #temporary must update based on user logged in the time
-SECRET_KEY = "temp"#os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
-os.makedirs(ROOT_FOLDER, exist_ok=True)
 
 app = FastAPI()
 
@@ -34,15 +19,25 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+conn = psycopg2.connect(
+    dbname="user_system",
+    user="postgres",
+    password="hornup-kofzyH-hukmy8",
+    host="localhost",
+    port="5432"
+)
+cur = conn.cursor()
+
+ROOT_FOLDER = "root" #temporary must update based on user logged in the time
+SECRET_KEY = "temp"#os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
+os.makedirs(ROOT_FOLDER, exist_ok=True)
+
 @app.on_event("shutdown")
 def shuteverything():
     cur.close()
     conn.close()
     print("bye bye")
-
-@app.get("/testing")
-def message():
-    return "hello"
 
 
 #as soon as the user logs in the first the first request is going to be 
@@ -60,7 +55,9 @@ def check_current_dir(data: dict):
         user_content = os.listdir(user_dir) #should return text01 as a list
         
         return {"content" : user_content}
+
     except ExpiredSignatureError:
+
         return {"status" : "expired token"}
 
 
@@ -96,27 +93,34 @@ def decode_token(token : str):
 
 #----------------------------registration-----------------------------------------
 def create_user_area(username : str):
-    os.mkdir("root/"+username)
+    os.makedirs("./root/"+username+"/Prefix/UserCave/")
 
 @app.post("/register") #create a new user {basic}
-def register(newData : dict):
+def register(data : dict):
 
-    username = newData["username"]
-    password = newData["password"]
-    directory = "root/"+newData["username"]
-
-    #must add a check login, otherwise it might cause redundancy errors
+    username = data["username"]
+    password = data["password"]
+    directory = "root/"+data["username"]
 
     cur.execute(
-        """
-        INSERT INTO users (username, password, storage_path)
-        VALUES (%s,%s,%s)
-        """,
-        (username, password, directory)
+        "SELECT password FROM users WHERE username = %s;",
+        (username,)
     )
-    conn.commit()
+    user = cur.fetchone()
 
-    create_user_area(username) #it doesnt work
+    if not user:
+        create_user_area(username)
+        cur.execute(
+            """
+            INSERT INTO users (username, password, storage_path)
+            VALUES (%s,%s,%s)
+            """,
+            (username, password, directory)
+        )
+        conn.commit()
+        return {"status" : "ok"}
+    else:
+        return {"status" : "user exists"}
 
 #---------------------------------------------------------------------
     
@@ -147,16 +151,23 @@ def authenticate(data : dict):
 #---------------------------------------------------------------------
 
 #-------------------------------upload files to server--------------------------------------
-@app.post("/upload")#add files to directory {basic}
-async def upload_file(file: UploadFile = File(...)):
-    file_path = os.path.join(ROOT_FOLDER, file.filename)
+@app.post("/Uplod")#add files to directory {basic}
+def upload_file(file: UploadFile = File(...), token: str = Form(...)):
+    try:
+        user_data = decode_token(token)
+        file_path = os.path.join("root", user_data["username"], "Prefix", "UserCave", user_data["current_dir"].strip("/"), file.filename)
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    return {"message": "uploaded successfully", "filename": file.filename}
+        return {"status" : "ok"}
 
+    except ExpiredSignatureError:
+        return {"status" : "expired token"}
 
+#---------------------------------------------------------------------
+
+#-------------------------------Download files from server--------------------------------------
 
 @app.post("/Downl")
 def Downl(data : dict):

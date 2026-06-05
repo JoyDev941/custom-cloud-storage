@@ -31,17 +31,19 @@ function LoginCard(){
             <h3 className="CardIntro">Log in your retreate</h3>
             <input
             type="text"
-            placeholder="username"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}/>
 
             <input
             type="password"
-            placeholder="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}/>
 
             <button onClick={sendDetails}>Log In</button>
+
+            <a href="/register">Register</a>
             
         </div>
     )

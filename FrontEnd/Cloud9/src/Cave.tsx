@@ -44,6 +44,50 @@ function Cave(){
         })
     }
 
+    function fetchFiles(){
+    const token = localStorage.getItem('token')
+    fetch('http://192.168.68.102:52026/UserCave', {
+        method : 'POST',
+        headers:{ 'content-type': 'application/json' },
+        body: JSON.stringify({token: token})
+    })
+    .then(res => res.json())
+    .then(data => setFiles(data.content))
+    }
+
+    useEffect(() => {
+        fetchFiles()  // just call the function here
+    }, [])
+
+    function Uplod(){
+        const token = localStorage.getItem('token')
+
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.click()
+
+        //its a event lister, where it waits until the user upload the file
+        input.onchange = () => {
+            const file = input.files?.[0]
+            if(!file) return
+
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('token', token || '')
+            
+            fetch('http://192.168.68.102:52026/Uplod', {
+                method: 'POST',
+                body: formData  // no content-type header needed, browser sets it automatically
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                fetchFiles()
+            })
+        }
+
+    }
+
     
     return (
         <div className={styles.wrapper}>
@@ -51,6 +95,9 @@ function Cave(){
                 <button
                 onClick={Downl}
                 disabled={!selectedFile}> Download </button>
+                <button
+                onClick={Uplod}
+                >Upload</button>
             </div>
 
             <div className={styles.mainContent}>

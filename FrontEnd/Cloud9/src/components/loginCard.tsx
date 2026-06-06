@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/loginCard.css"
+import {API_URL} from "../config"
 
 function LoginCard(){
     const navigate = useNavigate()
@@ -8,7 +9,7 @@ function LoginCard(){
     const [password, setPassword] = useState("")
 
     function sendDetails(){
-        fetch("http://192.168.68.102:52026/authenticate",{
+        fetch(`${API_URL}/authenticate`,{
             method: "POST",
             headers: {"Content-Type" : "application/json"},
             body: JSON.stringify({

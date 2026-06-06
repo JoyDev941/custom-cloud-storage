@@ -2,6 +2,7 @@ import styles from "./css/Cave.module.css"
 import { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {API_URL} from "./config"
 
 function Cave(){
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
@@ -11,7 +12,7 @@ function Cave(){
 
     function fetchFiles(){
     const token = localStorage.getItem('token')
-    fetch('http://192.168.68.102:52026/UserCave', {
+    fetch(`${API_URL}/UserCave`, {
         method : 'POST',
         headers:{ 'content-type': 'application/json' },
         body: JSON.stringify({token: token})
@@ -23,7 +24,7 @@ function Cave(){
     useEffect(() =>{
         const token = localStorage.getItem('token')
 
-        fetch('http://192.168.68.102:52026/UserCave', {
+        fetch(`${API_URL}/UserCave`, {
             method : 'POST',
             headers:{
                 'content-type': 'application/json'
@@ -40,7 +41,7 @@ function Cave(){
 
         const token = localStorage.getItem('token')
 
-        fetch('http://192.168.68.102:52026/Downl', {
+        fetch(`{API_URL}/Downl`, {
             method: 'POST',
             headers: {
                 'content-type' : 'application/json'
@@ -78,7 +79,7 @@ function Cave(){
             formData.append('file', file)
             formData.append('token', token || '')
             
-            fetch('http://192.168.68.102:52026/Uplod', {
+            fetch(`${API_URL}/Uplod`, {
                 method: 'POST',
                 body: formData  // no content-type header needed, browser sets it automatically
             })
@@ -97,7 +98,7 @@ function Cave(){
 
         if(!selectedFile) return
 
-        fetch('http://192.168.68.102:52026/Del',{
+        fetch(`${API_URL}/Del`,{
             method: 'POST',
             headers: {'content-type' : 'application/json'},
             body: JSON.stringify({token : token, filename : selectedFile})

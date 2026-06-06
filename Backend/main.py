@@ -176,6 +176,9 @@ def Downl(data : dict):
         user_data = decode_token(data["token"])
 
         filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
+
+        print(filelocation)
+
         return FileResponse(
             path=filelocation,
             filename=data["filename"],

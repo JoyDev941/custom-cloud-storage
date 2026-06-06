@@ -41,7 +41,7 @@ function Cave(){
 
         const token = localStorage.getItem('token')
 
-        fetch(`{API_URL}/Downl`, {
+        fetch(`${API_URL}/Downl`, {
             method: 'POST',
             headers: {
                 'content-type' : 'application/json'

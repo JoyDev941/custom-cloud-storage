@@ -184,3 +184,19 @@ def Downl(data : dict):
 
     except ExpiredSignatureError:
         return{"status" : "Token Expired"}
+
+@app.post("/Del")
+def Del(data : dict):
+    try:
+        user_data = decode_token(data["token"])
+
+        filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
+
+        if(os.path.isfile(filelocation)):
+            os.remove(filelocation)
+            return {"status" : "ok"}
+        else:
+            return{"status" : "file not found or check for console error"}
+
+    except ExpiredSignatureError:
+        return {"status" : "Token Expired"}

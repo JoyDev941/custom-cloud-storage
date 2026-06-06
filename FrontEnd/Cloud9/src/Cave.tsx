@@ -1,10 +1,24 @@
 import styles from "./css/Cave.module.css"
 import { useState } from "react";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Cave(){
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
     const [selectedFile, setSelectedFile] = useState<string | null>(null) //stores the file names based on selection in the ui
+    const navigate = useNavigate()
+
+
+    function fetchFiles(){
+    const token = localStorage.getItem('token')
+    fetch('http://192.168.68.102:52026/UserCave', {
+        method : 'POST',
+        headers:{ 'content-type': 'application/json' },
+        body: JSON.stringify({token: token})
+    })
+    .then(res => res.json())
+    .then(data => setFiles(data.content))
+    }
 
     useEffect(() =>{
         const token = localStorage.getItem('token')
@@ -44,17 +58,6 @@ function Cave(){
         })
     }
 
-    function fetchFiles(){
-    const token = localStorage.getItem('token')
-    fetch('http://192.168.68.102:52026/UserCave', {
-        method : 'POST',
-        headers:{ 'content-type': 'application/json' },
-        body: JSON.stringify({token: token})
-    })
-    .then(res => res.json())
-    .then(data => setFiles(data.content))
-    }
-
     useEffect(() => {
         fetchFiles()  // just call the function here
     }, [])
@@ -86,6 +89,31 @@ function Cave(){
             })
         }
 
+
+    }
+
+    function Del(){
+        const token = localStorage.getItem('token')
+
+        if(!selectedFile) return
+
+        fetch('http://192.168.68.102:52026/Del',{
+            method: 'POST',
+            headers: {'content-type' : 'application/json'},
+            body: JSON.stringify({token : token, filename : selectedFile})
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data.status)
+            fetchFiles()
+        })
+
+
+    }
+
+    function LogOut(){
+        localStorage.removeItem('token')
+        navigate('/login')
     }
 
     
@@ -94,10 +122,21 @@ function Cave(){
             <div className={styles.navigationBar}>
                 <button
                 onClick={Downl}
-                disabled={!selectedFile}> Download </button>
+                disabled={!selectedFile}
+                >Download </button>
+
                 <button
                 onClick={Uplod}
                 >Upload</button>
+
+                <button
+                onClick={Del}
+                disabled={!selectedFile}
+                >Delete</button>
+
+                <button 
+                onClick={LogOut}
+                >Log out</button>
             </div>
 
             <div className={styles.mainContent}>

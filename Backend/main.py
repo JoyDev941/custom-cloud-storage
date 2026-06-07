@@ -1,9 +1,11 @@
+from dependency import create_token, decode_token, create_user_area
 from fastapi import FastAPI, Request, UploadFile, File, Form
+from jose import ExpiredSignatureError
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from jose import jwt, JWTError, ExpiredSignatureError
-from datetime import datetime, timedelta, timezone
+
+
 import psycopg2
 import shutil
 import os
@@ -29,8 +31,6 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 ROOT_FOLDER = "root" #temporary must update based on user logged in the time
-SECRET_KEY = "temp"#os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
 os.makedirs(ROOT_FOLDER, exist_ok=True)
 
 @app.on_event("shutdown")
@@ -51,49 +51,22 @@ def check_current_dir(data: dict):
 
         #check for user directory in postgress not in token
         user_dir = "./root/"+user_data["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
-        
         user_content = os.listdir(user_dir) #should return text01 as a list
+        file = {}
+
+        for item in user_content:
+            name, ext = os.path.splitext(item)
+            file[name] = ext
         
-        return {"content" : user_content}
+        return {"content" : file}
 
     except ExpiredSignatureError:
 
         return {"status" : "expired token"}
 
-
-#---------------------------------------------------------------------
-
-#----------------------------token-----------------------------------------
-
-def create_token(username : str): # postgress["username"] -> create_token() -> Store location info -> return packaged token
-    data = {
-        "username" : username,
-        "current_dir" : "/",
-        }
-    payload = data.copy()
-    payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=1)
-
-    encode_token = jwt.encode(
-        payload,
-        SECRET_KEY,
-        algorithm=ALGORITHM
-    )
-
-    return encode_token
-
-def decode_token(token : str):
-        return jwt.decode(
-            token,
-            SECRET_KEY,
-            algorithms=ALGORITHM
-        )
-
-
 #---------------------------------------------------------------------
 
 #----------------------------registration-----------------------------------------
-def create_user_area(username : str):
-    os.makedirs("./root/"+username+"/Prefix/UserCave/")
 
 @app.post("/register") #create a new user {basic}
 def register(data : dict):

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/loginCard.css"
 import {API_URL} from "../config"
+import logo from "../assets/cave.png"
 
 function LoginCard(){
     const navigate = useNavigate()
@@ -29,7 +30,8 @@ function LoginCard(){
 
     return (
         <div className="container">
-            <h3 className="CardIntro">Log in your retreate</h3>
+            <img src={logo} alt="logo" width={50} />
+            <h3 className="cardIntro">Step into your retreat</h3>
             <input
             type="text"
             placeholder="Username"
@@ -44,7 +46,7 @@ function LoginCard(){
 
             <button onClick={sendDetails}>Log In</button>
 
-            <a href="/register">Register</a>
+            <a href="/register"><>Don't have an account? </>Register</a>
             
         </div>
     )

@@ -15,6 +15,7 @@
 
 .mainContent{
   height: calc(100vh - 60px);
+  background-color: red;
   display: flex;
   flex-direction: row;
   flex: 1;
@@ -40,5 +41,11 @@
 .selected{
   border: 2px solid blue;
   background-color: lightblue;
+  flex: 0;
 }
 
+.navBtn{
+  height: 25px;
+  width: 90px;
+  margin-left: 10px;
+}

@@ -1,16 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+J:ital,wght@0,100..400;1,100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playwrite+GB+J:ital,wght@0,100..400;1,100..400&display=swap');
+
 .container{
-    height: 100vh;
-    width: 50vw;
-    border-radius: 15px;
-    background-color: green;
+    margin: 80px;
+    width: 65vh;
+    height: min(30vw,38vw);
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    /* From https://css.glass */
-    background: rgba(255, 255, 255, 0.71);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(7.9px);
-    -webkit-backdrop-filter: blur(7.9px);
-    border: 1px solid rgba(255, 255, 255, 0.21);
+    background: linear-gradient(120deg,#F64001, #E8761E, #CA0610);
+    font-family: "Lora", serif;
+
+}
+
+input{
+    height: 35px;
+    width: 85%;
+    margin-top: 10px;
+}
+
+button{
+    height: 35px;
+    width: 86%;
+    border-radius: 3px;
+    margin-top: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: medium;
+    border-color: #622B14;
+    background-color: #622B14;
+}
+
+.cardIntro {
+    font-family: "Playwrite GB J", cursive;
+    font-size: 20px;
 }

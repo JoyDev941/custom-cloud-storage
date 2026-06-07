@@ -112,6 +112,17 @@ function Cave(){
 
     }
 
+    function getIcon(ext : string){
+
+        if(ext === ".png" || ext === ".jpg" || ext === ".jpeg") return "🖼️"
+        if(ext === ".pdf") return "📄"
+        if(ext === ".txt") return "📝"
+        if(ext === ".mp4" || ext === ".mov") return "🎥"
+        if(ext === ".mp3") return "🎵"
+
+        return "📁"
+    }
+
     function LogOut(){
         localStorage.removeItem('token')
         navigate('/login')
@@ -122,20 +133,24 @@ function Cave(){
         <div className={styles.wrapper}>
             <div className={styles.navigationBar}>
                 <button
+                className={styles.navBtn}
                 onClick={Downl}
                 disabled={!selectedFile}
                 >Download </button>
 
                 <button
+                className={styles.navBtn}
                 onClick={Uplod}
                 >Upload</button>
 
                 <button
+                className={styles.navBtn}
                 onClick={Del}
                 disabled={!selectedFile}
                 >Delete</button>
 
                 <button 
+                className={styles.navBtn}
                 onClick={LogOut}
                 >Log out</button>
             </div>
@@ -143,17 +158,18 @@ function Cave(){
             <div className={styles.mainContent}>
                 <div className={styles.leftBar}></div>
 
-                <div className={styles.userContent}>
-                    {/* apply fileCard always, selected only if this file is clicked */}
-                    {files.map((file, index) =>(
-                        <div 
-                        key={index}
-                        className={`${styles.fileCard} ${selectedFile === file ? styles.selected : ''}`}
-                        onClick={() => setSelectedFile(file)}
-                        >
-                        {/* render file name */}
-                        {file} </div>))}  
-                </div>
+                {Object.entries(files).map(([filename, ext], index) => (
+                    <div
+                    key={index}
+                    className={`${styles.fileCard} ${selectedFile === filename+ext ? styles.selected : ''}`}
+                    onClick={() => setSelectedFile(filename+ext)}
+                    >
+                        {getIcon(ext)}
+                        {filename}{ext}
+                    </div>
+                ))}
+
+                
             </div>
         </div>
     )

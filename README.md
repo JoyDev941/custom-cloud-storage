@@ -87,4 +87,4 @@ I built NR to demonstrate real-world DevOps skills: deploying services on Linux,
 
 ---
 
-*Built with 🌿 by [Your Name]*
+*Built with 🌿 by Joynal Abedin Abdul

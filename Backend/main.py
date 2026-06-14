@@ -1,15 +1,17 @@
-from dependency import create_token, decode_token, create_user_area
+from components.dependency import create_token, decode_token, create_user_area
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from jose import ExpiredSignatureError
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-
 import psycopg2
 import shutil
 import os
 #pip install multipart
+
+# TODO: Implement connection pooling to handle PostgreSQL timeouts
+# For now, restart PostgreSQL manually if connection fails
 
 app = FastAPI()
 
@@ -40,25 +42,33 @@ def shuteverything():
     print("bye bye")
 
 
-#as soon as the user logs in the first the first request is going to be 
-@app.post("/UserCave")
-def check_current_dir(data: dict):
-    #{"username" : str, "current_dir" : str, exp : int}
+def get_file_list(data : dict):
     try:
-        user_data = decode_token(data["token"])
-
-        checkfolder = user_data["current_dir"]
-
+        checkfolder = data["current_dir"]
         #check for user directory in postgress not in token
-        user_dir = "./root/"+user_data["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
+        user_dir = "./root/"+data["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
         user_content = os.listdir(user_dir) #should return text01 as a list
         file = {}
 
         for item in user_content:
             name, ext = os.path.splitext(item)
             file[name] = ext
-        
+
         return {"content" : file}
+
+    except FileNotFoundError:
+
+        return {"status" : "file not found"}
+
+
+#as soon as the user logs in the first the first request is going to be 
+@app.post("/UserCave")
+def check_current_dir(data: dict):
+    #{"username" : str, "current_dir" : str, exp : int}
+    try:
+        content = decode_token(data["token"])
+
+        return get_file_list(content)
 
     except ExpiredSignatureError:
 

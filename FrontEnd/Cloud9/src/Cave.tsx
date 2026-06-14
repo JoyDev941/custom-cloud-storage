@@ -2,7 +2,11 @@ import styles from "./css/Cave.module.css"
 import { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {API_URL} from "./config"
+import {API_URL} from "./config";
+import uploadIcon from "./assets/icons/1.png";
+import userIcon from "./assets/icons/3.png";
+import userMessage from "./assets/icons/4.png";
+import userCalendar from "./assets/icons/5.png";
 
 function Cave(){
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
@@ -132,7 +136,9 @@ function Cave(){
     return (
         <div className={styles.wrapper}>
             <div className={styles.navigationBar}>
-                <button
+                <input className={styles.search}></input>
+
+                {/* <button
                 className={styles.navBtn}
                 onClick={Downl}
                 disabled={!selectedFile}
@@ -152,25 +158,52 @@ function Cave(){
                 <button 
                 className={styles.navBtn}
                 onClick={LogOut}
-                >Log out</button>
+                >Log out</button> */}
             </div>
 
-            <div className={styles.mainContent}>
-                <div className={styles.leftBar}></div>
+            <div className={styles.rightPanel}>
+                <div className={styles.dirBrowse}>Home, Drive, Bin</div>
+                <div className={styles.storageQuota}>Storage</div>
+            </div>
 
+
+            <div className={styles.mainContent}>
                 {Object.entries(files).map(([filename, ext], index) => (
                     <div
                     key={index}
                     className={`${styles.fileCard} ${selectedFile === filename+ext ? styles.selected : ''}`}
                     onClick={() => setSelectedFile(filename+ext)}
                     >
-                        {getIcon(ext)}
-                        {filename}{ext}
+                        <span>{getIcon(ext)}</span>
+                        <span>{filename}{ext}</span>
                     </div>
                 ))}
-
-                
             </div>
+
+
+            <div className={styles.toolColumn}>
+                <button className={styles.cBtn} onClick={Uplod}>
+                    <img src={uploadIcon} alt="upload" width={50}></img>
+                </button>
+
+                <button className={styles.cBtn} onClick={Downl}>
+                    <img src={uploadIcon} alt="download" width={50}></img>
+                </button>
+
+                <button className={styles.ca2Btn} onClick={Uplod}>
+                    <img src={userIcon} alt="upload" width={50}></img>
+                </button>
+
+                <button className={styles.c2Btn} onClick={Uplod}>
+                    <img src={userMessage} alt="upload" width={50}></img>
+                </button>
+
+                <button className={styles.c2Btn} onClick={Uplod}>
+                    <img src={userCalendar} alt="upload" width={50}></img>
+                </button>
+
+            </div>
+            
         </div>
     )
 }

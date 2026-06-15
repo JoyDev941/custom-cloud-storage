@@ -1,6 +1,6 @@
-import LoginPage from "./LoginPage.tsx";
-import Cave from "./Cave.tsx";
-import RegisterPage from "./RegisterPage.tsx"
+import LoginPage from "./Pages/LoginPage.tsx";
+import Cave from "./Pages/Cave.tsx";
+import RegisterPage from "./Pages/RegisterPage.tsx"
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 
 function App() {

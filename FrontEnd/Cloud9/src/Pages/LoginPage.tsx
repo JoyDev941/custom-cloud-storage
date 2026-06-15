@@ -1,5 +1,5 @@
-import LoginCard from "./components/loginCard";
-import styles from './css/index.module.css'
+import LoginCard from "../components/loginCard";
+import styles from '../css/index.module.css'
 
 function LoginPage() {
 

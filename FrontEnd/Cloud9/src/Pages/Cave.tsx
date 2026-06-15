@@ -1,92 +1,53 @@
-import styles from "./css/Cave.module.css"
+import styles from "../css/Cave.module.css"
 import { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {API_URL} from "./config";
-import uploadIcon from "./assets/icons/1.png";
-import userIcon from "./assets/icons/3.png";
-import userMessage from "./assets/icons/4.png";
-import userCalendar from "./assets/icons/5.png";
+import {API_URL} from "../config";
 
+import uploadIcon from "../assets/icons/1.png";
+import userIcon from "../assets/icons/3.png";
+import userMessage from "../assets/icons/4.png";
+import userCalendar from "../assets/icons/5.png";
+import tempBin from '../assets/tempbin.png';
 
+import Del from "../components/methods/Del";
+import Uplod from '../components/methods/Uplod';
+import Downl from '../components/methods/Downl'
+import getIcon from '../components/methods/getIcon'
 
-import Del from "./components/methods/Del";
-import Uplod from './components/methods/Uplod';
-import tempBin from './assets/tempbin.png';
-
-//import { Del } from './components/methods/Del'
 
 function Cave(){
+
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
     const [selectedFile, setSelectedFile] = useState<string | null>(null) //stores the file names based on selection in the ui
     const navigate = useNavigate()
+    const handleDelete = () => Del(selectedFile, fetchFiles)
+    const handleUpload = () => Uplod(fetchFiles)
+    const handleDownload = () => Downl(selectedFile)
+    const handleLogout = () => {
+        localStorage.removeItem('token')
+        navigate('/login')
+    }
     
-
-    useEffect(() =>{
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    function fetchFiles(){
         const token = localStorage.getItem('token')
-
         fetch(`${API_URL}/UserCave`, {
             method : 'POST',
-            headers:{
-                'content-type': 'application/json'
-            },
+            headers:{ 'content-type': 'application/json' },
             body: JSON.stringify({token: token})
         })
         .then(res => res.json())
         .then(data => setFiles(data.content))
-
-    }, [])
-
-    function Downl(){
-        if(!selectedFile) return
-
-        const token = localStorage.getItem('token')
-
-        fetch(`${API_URL}/Downl`, {
-            method: 'POST',
-            headers: {
-                'content-type' : 'application/json'
-            },
-            body: JSON.stringify({token : token, filename: selectedFile}) //should be changed to dynamic
-        })
-        .then(res => res.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = selectedFile
-            a.click()
-            window.URL.revokeObjectURL(url)
-        })
     }
 
     useEffect(() => {
         fetchFiles()  // just call the function here
     }, [])
 
-
-     function getIcon(ext : string){
-
-        if(ext === ".png" || ext === ".jpg" || ext === ".jpeg") return "🖼️"
-        if(ext === ".pdf") return "📄"
-        if(ext === ".txt") return "📝"
-        if(ext === ".mp4" || ext === ".mov") return "🎥"
-        if(ext === ".mp3") return "🎵"
-
-        return "📁"
-    }
-
-    const handleDelete = () => Del(selectedFile, fetchFiles)
-    const handleUpload = () => Uplod(fetchFiles)
-
-    function LogOut(){
-        localStorage.removeItem('token')
-        navigate('/login')
-    }
-
-    
-
-
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
     return (
         <div className={styles.wrapper}>
             <div className={styles.navigationBar}>

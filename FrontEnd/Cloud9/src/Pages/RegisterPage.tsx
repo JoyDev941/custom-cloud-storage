@@ -1,6 +1,6 @@
-import RegisterCard from "./components/RegisterCard";
+import RegisterCard from "../components/RegisterCard";
 import { Fragment } from "react/jsx-runtime";
-import styles from './css/index.module.css'
+import styles from '../css/index.module.css'
 
 function LoginPage() {
 

@@ -66,9 +66,9 @@ def get_file_list(data : dict):
 def check_current_dir(data: dict):
     #{"username" : str, "current_dir" : str, exp : int}
     try:
-        content = decode_token(data["token"])
+        checkfolder = decode_token(data["token"])
 
-        return get_file_list(content)
+        return get_file_list(checkfolder)
 
     except ExpiredSignatureError:
 

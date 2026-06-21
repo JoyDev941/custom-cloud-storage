@@ -6,8 +6,7 @@ ALGORITHM = "HS256"
 
 def create_token(username : str): # postgress["username"] -> create_token() -> Store location info -> return packaged token
     data = {
-        "username" : username,
-        "current_dir" : "/",
+        "username" : username
         }
     payload = data.copy()
     payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=1)

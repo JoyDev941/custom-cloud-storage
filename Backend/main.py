@@ -42,17 +42,25 @@ def shuteverything():
     print("bye bye")
 
 
-def get_file_list(data : dict):
+def get_file_list(data : dict, data2 : dict):
     try:
+        
         checkfolder = data["current_dir"]
         #check for user directory in postgress not in token
-        user_dir = "./root/"+data["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
+        user_dir = "./root/"+data2["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
         user_content = os.listdir(user_dir) #should return text01 as a list
         file = {}
 
+        #builds the list for folder content and extention of it
         for item in user_content:
+            item_path = os.path.join(user_dir, item) #make full folder path
             name, ext = os.path.splitext(item)
-            file[name] = ext
+
+            #if the item is a folder, then foldername : folder else filename : ext
+            if os.path.isdir(item_path):
+                file[name] = "folder"
+            else:
+                file[name] = ext
 
         return {"content" : file}
 
@@ -66,9 +74,10 @@ def get_file_list(data : dict):
 def check_current_dir(data: dict):
     #{"username" : str, "current_dir" : str, exp : int}
     try:
-        checkfolder = decode_token(data["token"])
 
-        return get_file_list(checkfolder)
+        data2 = decode_token(data["token"])
+
+        return get_file_list(data, data2)
 
     except ExpiredSignatureError:
 
@@ -135,13 +144,21 @@ def authenticate(data : dict):
 
 #-------------------------------upload files to server--------------------------------------
 @app.post("/Uplod")#add files to directory {basic}
-def upload_file(file: UploadFile = File(...), token: str = Form(...)):
+def upload_file(file: UploadFile = File(...), token: str = Form(...), current_dir: str = Form(...)):
     try:
         user_data = decode_token(token)
-        file_path = os.path.join("root", user_data["username"], "Prefix", "UserCave", user_data["current_dir"].strip("/"), file.filename)
-
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        
+        print(f"current_dir: '{current_dir}'")
+        print(f"username: '{user_data['username']}'")
+        
+        file_path = os.path.join(
+            "root", 
+            user_data["username"], 
+            "Prefix/UserCave" + current_dir,
+            file.filename
+        )
+        
+        print(f"final file_path: '{file_path}'")
 
         return {"status" : "ok"}
 

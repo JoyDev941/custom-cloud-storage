@@ -1,31 +1,36 @@
 import { API_URL } from "../../config"
-    
-export default function Uplod(onSuccess: () => void){
+
+export default function Uplod(onSuccess: () => void, currentPath: string){
     const token = localStorage.getItem('token')
 
     const input = document.createElement('input')
     input.type = 'file'
     input.click()
 
-    //its a event lister, where it waits until the user upload the file
     input.onchange = () => {
         const file = input.files?.[0]
         if(!file) return
 
+        console.log("Uploading to path:", currentPath)  // debug
+
         const formData = new FormData()
         formData.append('file', file)
         formData.append('token', token || '')
+        formData.append('current_dir', currentPath)
         
         fetch(`${API_URL}/Uplod`, {
             method: 'POST',
-            body: formData  // no content-type header needed, browser sets it automatically
+            body: formData
         })
         .then(res => res.json())
         .then(data => {
-            console.log(data)
-            onSuccess()
+            if(data.status === "ok") {
+                console.log("Upload successful")
+                onSuccess()
+            } else {
+                console.error("Upload failed:", data)
+            }
         })
+        .catch(err => console.error("Upload error:", err))
     }
-
-
 }

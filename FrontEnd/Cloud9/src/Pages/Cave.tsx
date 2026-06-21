@@ -12,22 +12,41 @@ import tempBin from '../assets/tempbin.png';
 
 import Del from "../components/methods/Del";
 import Uplod from '../components/methods/Uplod';
-import Downl from '../components/methods/Downl'
-import getIcon from '../components/methods/getIcon'
+import Downl from '../components/methods/Downl';
+import getIcon from '../components/methods/getIcon';
 
 
 function Cave(){
 
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
     const [selectedFile, setSelectedFile] = useState<string | null>(null) //stores the file names based on selection in the ui
-    const navigate = useNavigate()
+    const [currentPath, setCurrentPath] = useState<string>("/")
+
     const handleDelete = () => Del(selectedFile, fetchFiles)
-    const handleUpload = () => Uplod(fetchFiles)
+    const handleUpload = () => Uplod(fetchFiles, currentPath)
     const handleDownload = () => Downl(selectedFile)
+    const navigate = useNavigate()
+
     const handleLogout = () => {
         localStorage.removeItem('token')
         navigate('/login')
     }
+
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+
+    function handleDoubleClick(
+        filename: string,
+        ext : string,
+        currentPath : string,
+        setCurrentPath : (path: string) => void, 
+        )
+        {
+            if(ext === "folder") {
+            setCurrentPath(currentPath + filename + "/")
+            fetchFiles()
+            }
+        }
     
     //------------------------------------------------------------------------
     //------------------------------------------------------------------------
@@ -36,7 +55,7 @@ function Cave(){
         fetch(`${API_URL}/UserCave`, {
             method : 'POST',
             headers:{ 'content-type': 'application/json' },
-            body: JSON.stringify({token: token})
+            body: JSON.stringify({token: token, current_dir : currentPath})
         })
         .then(res => res.json())
         .then(data => setFiles(data.content))
@@ -66,6 +85,7 @@ function Cave(){
                     key={index}
                     className={`${styles.fileCard} ${selectedFile === filename+ext ? styles.selected : ''}`}
                     onClick={() => setSelectedFile(filename+ext)}
+                    onDoubleClick={() => handleDoubleClick(filename, ext, currentPath, setCurrentPath)}
                     >
                         <span>{getIcon(ext)}</span>
                         <span>{filename}{ext}</span>
@@ -83,7 +103,7 @@ function Cave(){
                     <img src={userIcon} alt="upload" width={50}></img>
                 </button>
 
-                <button className={styles.c2Btn} onClick={handleUpload}>
+                <button className={styles.c2Btn} onClick={handleLogout}>
                     <img src={userMessage} alt="upload" width={50}></img>
                 </button>
 

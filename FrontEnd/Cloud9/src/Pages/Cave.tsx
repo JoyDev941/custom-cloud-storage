@@ -22,12 +22,13 @@ function Cave(){
     const [selectedFile, setSelectedFile] = useState<string | null>(null) //stores the file names based on selection in the ui
     const [currentPath, setCurrentPath] = useState<string>("/")
 
-    const handleDelete = () => Del(selectedFile, fetchFiles)
-    const handleUpload = () => Uplod(fetchFiles, currentPath)
+    //const handleDelete = () => Del(selectedFile, fetchFiles)
+    //const handleUpload = () => Uplod(fetchFiles, currentPath)
     const handleDownload = () => Downl(selectedFile)
     const navigate = useNavigate()
 
     const handleLogout = () => {
+        
         localStorage.removeItem('token')
         navigate('/login')
     }
@@ -38,33 +39,48 @@ function Cave(){
 
     function handleDoubleClick(
         filename: string,
-        ext: string,
-        currentPath: string,
-        setCurrentPath: (path: string) => void
+        ext: string
     ){
         if(ext === "folder"){
-            setCurrentPath(currentPath + filename + "/")
-            fetchFiles()
+            fetchFiles("2", filename)
         }
     }
     
     //------------------------------------------------------------------------
     //------------------------------------------------------------------------
-    function fetchFiles(){
+    function fetchFiles(scenario : string, filename : string | void){
         const token = localStorage.getItem('token')
-        fetch(`${API_URL}/UserCave`, {
-            method : 'POST',
-            headers:{ 'content-type': 'application/json' },
-            body: JSON.stringify({token: token, scen : "1"})
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log("Response:", data)
-            setFiles(data.content)})
+
+        if(scenario === "2"){
+            
+            fetch(`${API_URL}/UserCave`, {
+                method: 'POST',
+                headers: {"content-type" : "application/json"},
+                body: JSON.stringify({token : token, scen : "2", filename : filename })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "ok"){
+                    fetchFiles("1")
+                }
+            })
+        }
+        else if(scenario === "1"){
+            
+            fetch(`${API_URL}/UserCave`,{
+                method: 'POST',
+                headers: {"content-type" : "application/json"},
+                body: JSON.stringify({token : token, scen : "1"})
+            })
+            .then(res => res.json())
+            .then(data => {
+                setFiles(data.content) //make sure that old gets removed
+            })
+        }
     }
 
     useEffect(() => {
-        fetchFiles()  // just call the function here
+        fetchFiles("1")  // just call the function here
     }, [])
 
     //------------------------------------------------------------------------
@@ -87,7 +103,7 @@ function Cave(){
                     key={index}
                     className={`${styles.fileCard} ${selectedFile === filename+ext ? styles.selected : ''}`}
                     onClick={() => setSelectedFile(filename+ext)}
-                    onDoubleClick={() => handleDoubleClick(filename, ext, currentPath, setCurrentPath)}
+                    onDoubleClick={() => handleDoubleClick(filename, ext)}
                     >
                         <span>{getIcon(ext)}</span>
                         <span>{filename}{ext}</span>
@@ -97,11 +113,11 @@ function Cave(){
 
 
             <div className={styles.toolColumn}>
-                <button className={styles.cBtn} onClick={handleUpload}>
+                <button className={styles.cBtn} onClick={handleLogout}>
                     <img src={uploadIcon} alt="upload" width={50}></img>
                 </button>
 
-                <button className={styles.ca2Btn} onClick={handleUpload}>
+                <button className={styles.ca2Btn} onClick={handleLogout}>
                     <img src={userIcon} alt="upload" width={50}></img>
                 </button>
 
@@ -109,7 +125,7 @@ function Cave(){
                     <img src={userMessage} alt="upload" width={50}></img>
                 </button>
 
-                <button className={styles.c2Btn} onClick={handleDelete}>
+                <button className={styles.c2Btn} onClick={handleLogout}>
                     <img src={tempBin} alt="tempBin" width={50}></img>
                 </button>
 

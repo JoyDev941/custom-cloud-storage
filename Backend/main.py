@@ -46,30 +46,30 @@ def shuteverything():
 @app.post("/UserCave")
 def check_current_dir(data: dict):
     #{"username" : str, "current_dir" : str, exp : int}
+    user_info = decode_token(data["token"])
     try:
-
-        user_info = decode_token(data["token"])
-
-        if data["scen"] == "1":
-
-            result = get_file_list({"username": user_info["username"]}, conn, cur)
-            print(result)
-            return result
-
-        elif data["scen"] == "2":
-
-            folder_name = data.get("folder_name")
-    
+        if data["scen"] == "2":
+            
+            filename = data["filename"]
             # Update storage_path in database
             cur.execute(
                 "UPDATE users SET storage_path = storage_path || %s WHERE username = %s",
-                (folder_name + "/", user_info["username"])
+                ("/" + filename + "/", user_info["username"])
             )
             conn.commit()
     
             # Then return the folder contents
+            return {"status" : "ok"}
+
+        else:
+
             result = get_file_list({"username": user_info["username"]}, conn, cur)
+            
             return result
+
+
+
+
 
     except ExpiredSignatureError:
 

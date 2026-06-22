@@ -35,18 +35,18 @@ function Cave(){
     //------------------------------------------------------------------------
     //------------------------------------------------------------------------
 
+
     function handleDoubleClick(
         filename: string,
-        ext : string,
-        currentPath : string,
-        setCurrentPath : (path: string) => void, 
-        )
-        {
-            if(ext === "folder") {
+        ext: string,
+        currentPath: string,
+        setCurrentPath: (path: string) => void
+    ){
+        if(ext === "folder"){
             setCurrentPath(currentPath + filename + "/")
             fetchFiles()
-            }
         }
+    }
     
     //------------------------------------------------------------------------
     //------------------------------------------------------------------------
@@ -55,10 +55,12 @@ function Cave(){
         fetch(`${API_URL}/UserCave`, {
             method : 'POST',
             headers:{ 'content-type': 'application/json' },
-            body: JSON.stringify({token: token, current_dir : currentPath})
+            body: JSON.stringify({token: token, scen : "1"})
         })
         .then(res => res.json())
-        .then(data => setFiles(data.content))
+        .then(data => {
+            console.log("Response:", data)
+            setFiles(data.content)})
     }
 
     useEffect(() => {

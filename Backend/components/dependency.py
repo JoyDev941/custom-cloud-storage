@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
+import os
 
 SECRET_KEY = "temp"#os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -27,5 +28,39 @@ def decode_token(token : str):
             algorithms=ALGORITHM
         )
 
-def create_user_area(username : str):
-    os.makedirs("./root/"+username+"/Prefix/UserCave/")
+def create_user_area(username : str, directory : str):
+    os.makedirs(directory)
+
+def check_current_dir(username: str):
+    return {"status" : "ok"}
+
+
+
+def get_file_list(data : dict, conn, cur):
+    try:
+
+        username = data["username"]
+
+        cur.execute("SELECT storage_path FROM users WHERE username = %s", (username,))
+        result = cur.fetchone()
+        storage_path = result[0]
+
+        user_content = os.listdir(storage_path)
+
+        files = {}
+
+        for item in user_content:
+            name, ext = os.path.splitext(item)
+            item_path = os.path.join(storage_path, item)
+
+            if os.path.isdir(item_path):
+                files[name] = "folder"
+
+            else:
+                files[name] = ext
+
+        return { "content" : files}
+
+    except FileNotFoundError:
+
+        return {"status" : "file not found"}

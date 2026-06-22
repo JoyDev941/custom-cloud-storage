@@ -1,4 +1,4 @@
-from components.dependency import create_token, decode_token, create_user_area
+from components.dependency import create_token, decode_token, create_user_area, get_file_list
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from jose import ExpiredSignatureError
 from fastapi.responses import RedirectResponse
@@ -42,42 +42,34 @@ def shuteverything():
     print("bye bye")
 
 
-def get_file_list(data : dict, data2 : dict):
-    try:
-        
-        checkfolder = data["current_dir"]
-        #check for user directory in postgress not in token
-        user_dir = "./root/"+data2["username"]+ "/Prefix/UserCave" + checkfolder #this should become /root/admin testing cir
-        user_content = os.listdir(user_dir) #should return text01 as a list
-        file = {}
-
-        #builds the list for folder content and extention of it
-        for item in user_content:
-            item_path = os.path.join(user_dir, item) #make full folder path
-            name, ext = os.path.splitext(item)
-
-            #if the item is a folder, then foldername : folder else filename : ext
-            if os.path.isdir(item_path):
-                file[name] = "folder"
-            else:
-                file[name] = ext
-
-        return {"content" : file}
-
-    except FileNotFoundError:
-
-        return {"status" : "file not found"}
-
-
 #as soon as the user logs in the first the first request is going to be 
 @app.post("/UserCave")
 def check_current_dir(data: dict):
     #{"username" : str, "current_dir" : str, exp : int}
     try:
 
-        data2 = decode_token(data["token"])
+        user_info = decode_token(data["token"])
 
-        return get_file_list(data, data2)
+        if data["scen"] == "1":
+
+            result = get_file_list({"username": user_info["username"]}, conn, cur)
+            print(result)
+            return result
+
+        elif data["scen"] == "2":
+
+            folder_name = data.get("folder_name")
+    
+            # Update storage_path in database
+            cur.execute(
+                "UPDATE users SET storage_path = storage_path || %s WHERE username = %s",
+                (folder_name + "/", user_info["username"])
+            )
+            conn.commit()
+    
+            # Then return the folder contents
+            result = get_file_list({"username": user_info["username"]}, conn, cur)
+            return result
 
     except ExpiredSignatureError:
 
@@ -92,7 +84,7 @@ def register(data : dict):
 
     username = data["username"]
     password = data["password"]
-    directory = "root/"+data["username"]
+    directory = "root/"+username+"/Prefix/UserCave"
 
     cur.execute(
         "SELECT password FROM users WHERE username = %s;",
@@ -101,7 +93,7 @@ def register(data : dict):
     user = cur.fetchone()
 
     if not user:
-        create_user_area(username)
+        create_user_area(username, directory)
         cur.execute(
             """
             INSERT INTO users (username, password, storage_path)
@@ -143,27 +135,27 @@ def authenticate(data : dict):
 #---------------------------------------------------------------------
 
 #-------------------------------upload files to server--------------------------------------
-@app.post("/Uplod")#add files to directory {basic}
-def upload_file(file: UploadFile = File(...), token: str = Form(...), current_dir: str = Form(...)):
-    try:
-        user_data = decode_token(token)
+# @app.post("/Uplod")#add files to directory {basic}
+# def upload_file(file: UploadFile = File(...), token: str = Form(...), current_dir: str = Form(...)):
+#     try:
+#         user_data = decode_token(token)
         
-        print(f"current_dir: '{current_dir}'")
-        print(f"username: '{user_data['username']}'")
+#         print(f"current_dir: '{current_dir}'")
+#         print(f"username: '{user_data['username']}'")
         
-        file_path = os.path.join(
-            "root", 
-            user_data["username"], 
-            "Prefix/UserCave" + current_dir,
-            file.filename
-        )
+#         file_path = os.path.join(
+#             "root", 
+#             user_data["username"], 
+#             "Prefix/UserCave" + current_dir,
+#             file.filename
+#         )
         
-        print(f"final file_path: '{file_path}'")
+#         print(f"final file_path: '{file_path}'")
 
-        return {"status" : "ok"}
+#         return {"status" : "ok"}
 
-    except ExpiredSignatureError:
-        return {"status" : "expired token"}
+#     except ExpiredSignatureError:
+#         return {"status" : "expired token"}
 
 #---------------------------------------------------------------------
 
@@ -175,9 +167,19 @@ def Downl(data : dict):
     try:
         user_data = decode_token(data["token"])
 
-        filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
+        username = user_data["username"]
 
-        print(filelocation)
+        # using username, find the user path
+        cur.execute(
+            "SELECT storage_path FROM users WHERE username = %s",
+            (username,)
+        )
+        user = cur.fetchone()
+
+        filelocation = user[0] + "/" + user_data["filename"]
+
+        # filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
+        # print(filelocation)
 
         return FileResponse(
             path=filelocation,
@@ -188,18 +190,18 @@ def Downl(data : dict):
     except ExpiredSignatureError:
         return{"status" : "Token Expired"}
 
-@app.post("/Del")
-def Del(data : dict):
-    try:
-        user_data = decode_token(data["token"])
+# @app.post("/Del")
+# def Del(data : dict):
+#     try:
+#         user_data = decode_token(data["token"])
 
-        filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
+#         filelocation = "./root/" + user_data["username"] + "/Prefix/UserCave" + user_data["current_dir"] + "/" + data["filename"]
 
-        if(os.path.isfile(filelocation)):
-            os.remove(filelocation)
-            return {"status" : "ok"}
-        else:
-            return{"status" : "file not found or check for console error"}
+#         if(os.path.isfile(filelocation)):
+#             os.remove(filelocation)
+#             return {"status" : "ok"}
+#         else:
+#             return{"status" : "file not found or check for console error"}
 
-    except ExpiredSignatureError:
-        return {"status" : "Token Expired"}
+#     except ExpiredSignatureError:
+#         return {"status" : "Token Expired"}

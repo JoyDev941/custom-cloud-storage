@@ -42,6 +42,26 @@ def shuteverything():
     print("bye bye")
 
 
+@app.post("/logout")
+def logOut(data : dict):
+    try:
+        user_data = decode_token(data["token"])
+        root_path = "./root/" + user_data["username"] + "/Prefix/UserCave"
+        
+        # Reset storage_path to root
+        cur.execute(
+            "UPDATE users SET storage_path = %s WHERE username = %s",
+            (root_path, user_data["username"])
+        )
+        conn.commit()
+        
+        return {"status": "ok"}
+
+    except ExpiredSignatureError:
+
+        return {"status": "expired token"}
+
+    
 #as soon as the user logs in the first the first request is going to be 
 @app.post("/UserCave")
 def check_current_dir(data: dict):
@@ -61,15 +81,33 @@ def check_current_dir(data: dict):
             # Then return the folder contents
             return {"status" : "ok"}
 
+        elif data["scen"] == "3":
+
+            cur.execute(
+                "SELECT storage_path FROM users WHERE username = %s",
+                (user_info["username"],)
+            )
+            result = cur.fetchone()
+            storage_path = result[0]
+
+            parts = storage_path.split("/")
+            if(parts[len(parts)-2] != "UserCave"):
+                new_path = "/".join(parts[:-2]) + "/"
+
+            cur.execute(
+            "UPDATE users SET storage_path = %s WHERE username = %s",
+            (new_path, user_info["username"])
+            )
+            conn.commit()
+
+            return {"status" : "ok"}
+
+
         else:
 
             result = get_file_list({"username": user_info["username"]}, conn, cur)
             
             return result
-
-
-
-
 
     except ExpiredSignatureError:
 
@@ -135,27 +173,28 @@ def authenticate(data : dict):
 #---------------------------------------------------------------------
 
 #-------------------------------upload files to server--------------------------------------
-# @app.post("/Uplod")#add files to directory {basic}
-# def upload_file(file: UploadFile = File(...), token: str = Form(...), current_dir: str = Form(...)):
-#     try:
-#         user_data = decode_token(token)
-        
-#         print(f"current_dir: '{current_dir}'")
-#         print(f"username: '{user_data['username']}'")
-        
-#         file_path = os.path.join(
-#             "root", 
-#             user_data["username"], 
-#             "Prefix/UserCave" + current_dir,
-#             file.filename
-#         )
-        
-#         print(f"final file_path: '{file_path}'")
 
-#         return {"status" : "ok"}
+@app.post("/Uplod")#add files to directory {basic}
+def upload_file(file: UploadFile = File(...), token: str = Form(...), current_dir: str = Form(...)):
+    try:
+        user_info = decode_token(token)
 
-#     except ExpiredSignatureError:
-#         return {"status" : "expired token"}
+        cur.execute(
+            "SELECT storage_path FROM users WHERE username = %s",
+            (user_info["username"],)
+        )
+        result = cur.fetchone()
+        storage_path = result[0]
+
+        file_path = os.path.join(storage_path, file.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        return {"status" : "ok"}
+
+    except ExpiredSignatureError:
+
+        return {"status" : "expired token"}
 
 #---------------------------------------------------------------------
 

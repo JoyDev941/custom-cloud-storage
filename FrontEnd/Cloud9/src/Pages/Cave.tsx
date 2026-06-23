@@ -20,17 +20,34 @@ function Cave(){
 
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
     const [selectedFile, setSelectedFile] = useState<string | null>(null) //stores the file names based on selection in the ui
-    const [currentPath, setCurrentPath] = useState<string>("/")
 
     //const handleDelete = () => Del(selectedFile, fetchFiles)
-    //const handleUpload = () => Uplod(fetchFiles, currentPath)
+    const handleUpload = () => Uplod(() => fetchFiles("1"))
     const handleDownload = () => Downl(selectedFile)
     const navigate = useNavigate()
 
+    function handleBackwards(){
+        fetchFiles("3")
+    }
+
+    function handleForwards(){
+
+    }
+
     const handleLogout = () => {
-        
-        localStorage.removeItem('token')
-        navigate('/login')
+        const token = localStorage.getItem('token')
+        fetch(`${API_URL}/logout`,{
+            method: 'POST',
+            headers: {"content-type" : "application/json"},
+            body: JSON.stringify({token : token})
+        })
+        .then(res => res.json())
+        .then(data =>{
+            if(data.status === "ok"){
+                localStorage.removeItem('token')
+                navigate('/login')
+            }
+        })
     }
 
     //------------------------------------------------------------------------
@@ -51,7 +68,19 @@ function Cave(){
     function fetchFiles(scenario : string, filename : string | void){
         const token = localStorage.getItem('token')
 
-        if(scenario === "2"){
+        if(scenario === "1"){
+            
+            fetch(`${API_URL}/UserCave`,{
+                method: 'POST',
+                headers: {"content-type" : "application/json"},
+                body: JSON.stringify({token : token, scen : "1"})
+            })
+            .then(res => res.json())
+            .then(data => {
+                setFiles(data.content) //make sure that old gets removed
+            })
+        }
+        else if(scenario === "2"){
             
             fetch(`${API_URL}/UserCave`, {
                 method: 'POST',
@@ -65,16 +94,18 @@ function Cave(){
                 }
             })
         }
-        else if(scenario === "1"){
+        else if(scenario === "3"){
             
             fetch(`${API_URL}/UserCave`,{
                 method: 'POST',
                 headers: {"content-type" : "application/json"},
-                body: JSON.stringify({token : token, scen : "1"})
+                body: JSON.stringify({token : token, scen : "3"})
             })
             .then(res => res.json())
             .then(data => {
-                setFiles(data.content) //make sure that old gets removed
+                if(data.status === "ok"){
+                    fetchFiles("1")
+                } //make sure that old gets removed
             })
         }
     }
@@ -89,6 +120,7 @@ function Cave(){
         <div className={styles.wrapper}>
             <div className={styles.navigationBar}>
                 <input className={styles.search}></input>
+                <button onClick={handleBackwards} className={styles.backwards}> &lt; </button>
             </div>
 
             <div className={styles.rightPanel}>
@@ -113,7 +145,7 @@ function Cave(){
 
 
             <div className={styles.toolColumn}>
-                <button className={styles.cBtn} onClick={handleLogout}>
+                <button className={styles.cBtn} onClick={handleUpload}>
                     <img src={uploadIcon} alt="upload" width={50}></img>
                 </button>
 

@@ -26,11 +26,16 @@
   border: none;
   box-sizing: border-box;
 }
-/* .navBtn{
-  height: 25px;
-  width: 90px;
-  margin-left: 10px;
-} */
+.backwards{
+  height: 30px;
+  width: 30px;
+  margin-right: 190px;
+  color: red;
+  font-size: 24px;
+  background-color: #B6CAD2;
+  border: none;
+  cursor: pointer;
+}
 
 .rightPanel{
   height: calc(100vh - 60px);

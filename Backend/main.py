@@ -91,7 +91,10 @@ def check_current_dir(data: dict):
             storage_path = result[0]
 
             parts = storage_path.split("/")
-            if(parts[len(parts)-2] != "UserCave"):
+
+            if(parts[-2] == "UserCave" or parts[-1] == "UserCave"):
+                return {"status": "block"}
+            else:
                 new_path = "/".join(parts[:-2]) + "/"
 
             cur.execute(
@@ -101,7 +104,6 @@ def check_current_dir(data: dict):
             conn.commit()
 
             return {"status" : "ok"}
-
 
         else:
 
@@ -228,6 +230,32 @@ def Downl(data : dict):
 
     except ExpiredSignatureError:
         return{"status" : "Token Expired"}
+
+
+@app.post("/Search")
+def search_file(data : dict):
+    try:
+        user_info = decode_token(data["token"])
+        
+        filename = data["filename"]
+
+        cur.execute(
+            "SELECT storage_path FROM users WHERE username=%s",
+            (user_info["username"],)
+        )
+        result = cur.fetchone()
+        storage_path = os.listdir(result[0])
+
+        for file in storage_path:
+            if file == filename:
+                return {"status" : "found"}
+            
+        return {"content" : "not found"}
+
+    except ExpiredSignatureError:
+        return {"status" : "expired token"}
+
+
 
 # @app.post("/Del")
 # def Del(data : dict):

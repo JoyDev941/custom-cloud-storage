@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
+from dotenv import load_dotenv
+
 import os
 
-SECRET_KEY = "temp"#os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
 def create_token(username : str): # postgress["username"] -> create_token() -> Store location info -> return packaged token
+    
     data = {
         "username" : username
         }

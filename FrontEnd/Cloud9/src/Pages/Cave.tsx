@@ -30,10 +30,6 @@ function Cave(){
         fetchFiles("3")
     }
 
-    function handleForwards(){
-
-    }
-
     const handleLogout = () => {
         const token = localStorage.getItem('token')
         fetch(`${API_URL}/logout`,{
@@ -106,6 +102,9 @@ function Cave(){
                 if(data.status === "ok"){
                     fetchFiles("1")
                 } //make sure that old gets removed
+                else if(data.status === "block"){
+                    console.log("No Access to back route")
+                }
             })
         }
     }

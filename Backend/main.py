@@ -26,7 +26,7 @@ app.add_middleware(
 conn = psycopg2.connect(
     dbname="user_system",
     user="postgres",
-    password="hornup-kofzyH-hukmy8",
+    password="25060927",
     host="localhost",
     port="5432"
 )
@@ -232,29 +232,55 @@ def Downl(data : dict):
         return{"status" : "Token Expired"}
 
 
+def search_content(Apath : str, keyword : str):
+    folders = []
+
+    for item in os.listdir(Apath):
+        path = os.path.join(Apath, item)
+
+        if item.lower() == keyword.lower():
+            return {"keyword location" : path}
+        elif os.path.isdir(path):
+            folders.append(path)
+        else:
+            continue
+    
+    if folders:
+        for directories in folders:
+            result = search_content(directories, keyword)
+            if result:
+                return result
+    else:
+        return {"status null"}
+
+
+def storage_path_finder(username : str):
+    
+    cur.execute(
+        "SELECT storage_path FROM users WHERE username = %s",
+        (username,)
+    )
+    result = cur.fetchone()
+    Apath = result[0]
+
+    return Apath
+
+
 @app.post("/Search")
 def search_file(data : dict):
     try:
         user_info = decode_token(data["token"])
+        username = user_info["username"]
+        keyword = data["filename"]
+        Apath = storage_path_finder(username)
+
+        result = search_content(Apath, keyword)
+        return result
+
         
-        filename = data["filename"]
-
-        cur.execute(
-            "SELECT storage_path FROM users WHERE username=%s",
-            (user_info["username"],)
-        )
-        result = cur.fetchone()
-        storage_path = os.listdir(result[0])
-
-        for file in storage_path:
-            if file == filename:
-                return {"status" : "found"}
-            
-        return {"content" : "not found"}
 
     except ExpiredSignatureError:
-        return {"status" : "expired token"}
-
+        return {"status" : "Token Expired"}
 
 
 # @app.post("/Del")

@@ -4,11 +4,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {API_URL} from "../config";
 
-import uploadIcon from "../assets/icons/1.png";
-import userIcon from "../assets/icons/3.png";
-import userMessage from "../assets/icons/4.png";
-import userCalendar from "../assets/icons/5.png";
-import tempBin from '../assets/tempbin.png';
+import { IconUser, IconPencilMinus, IconCalendarMinus, IconArrowBadgeLeft, IconPlus, IconHome, IconDisc, IconTrash } from '@tabler/icons-react';
+
 
 import Del from "../components/methods/Del";
 import Uplod from '../components/methods/Uplod';
@@ -119,11 +116,14 @@ function Cave(){
         <div className={styles.wrapper}>
             <div className={styles.navigationBar}>
                 <input className={styles.search}></input>
-                <button onClick={handleBackwards} className={styles.backwards}> &lt; </button>
             </div>
 
             <div className={styles.rightPanel}>
-                <div className={styles.dirBrowse}>Home, Drive, Bin</div>
+                <div className={styles.dirBrowse}>
+                    <button className={styles.RPanelBtn}><IconHome stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Home</div></button>
+                    <button className={styles.RPanelBtn}><IconDisc stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Cave</div></button>
+                    <button className={styles.RPanelBtn}><IconTrash stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Bin</div></button>
+                </div>
                 <div className={styles.storageQuota}>Storage</div>
             </div>
 
@@ -145,19 +145,19 @@ function Cave(){
 
             <div className={styles.toolColumn}>
                 <button className={styles.cBtn} onClick={handleUpload}>
-                    <img src={uploadIcon} alt="upload" width={50}></img>
+                    <IconPlus size={50} color="red" stroke={2}/>
                 </button>
 
                 <button className={styles.ca2Btn} onClick={handleLogout}>
-                    <img src={userIcon} alt="upload" width={50}></img>
+                    <IconUser size={50} color="red"/>
                 </button>
 
                 <button className={styles.c2Btn} onClick={handleLogout}>
-                    <img src={userMessage} alt="upload" width={50}></img>
+                    <IconPencilMinus size={50} color="red"/>
                 </button>
 
                 <button className={styles.c2Btn} onClick={handleLogout}>
-                    <img src={tempBin} alt="tempBin" width={50}></img>
+                    <IconCalendarMinus size={50} color="red"/>
                 </button>
 
             </div>

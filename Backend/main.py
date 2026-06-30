@@ -177,7 +177,7 @@ def authenticate(data : dict):
 #-------------------------------upload files to server--------------------------------------
 
 @app.post("/Uplod")#add files to directory {basic}
-def upload_file(file: UploadFile = File(...), token: str = Form(...), current_dir: str = Form(...)):
+def upload_file(file: UploadFile = File(...), token: str = Form(...)):
     try:
         user_info = decode_token(token)
 

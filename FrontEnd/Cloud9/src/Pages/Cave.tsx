@@ -17,6 +17,10 @@ function Cave(){
 
     const [files, setFiles] = useState([]) //stores the name of the folder content, based on current location
     const [selectedFile, setSelectedFile] = useState<string | null>(null) //stores the file names based on selection in the ui
+    const [storage, setStorage] = useState({
+        storage_used: 0,
+        storage_quota: 0,
+    })
 
     //const handleDelete = () => Del(selectedFile, fetchFiles)
     const handleUpload = () => Uplod(() => fetchFiles("1"))
@@ -71,6 +75,10 @@ function Cave(){
             .then(res => res.json())
             .then(data => {
                 setFiles(data.content) //make sure that old gets removed
+                setStorage({
+                    storage_used: data.storage_used,
+                    storage_quota: data.storage_quota
+                })
             })
         }
         else if(scenario === "2"){
@@ -114,22 +122,36 @@ function Cave(){
     //------------------------------------------------------------------------
     return (
         <div className={styles.wrapper}>
+
             <div className={styles.navigationBar}>
+                <button className={styles.backwards} onClick={handleBackwards}><IconArrowBadgeLeft stroke={1} size={35} color="red"/></button>
                 <input className={styles.search}></input>
             </div>
 
-            <div className={styles.rightPanel}>
-                <div className={styles.dirBrowse}>
-                    <button className={styles.RPanelBtn}><IconHome stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Home</div></button>
-                    <button className={styles.RPanelBtn}><IconDisc stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Cave</div></button>
-                    <button className={styles.RPanelBtn}><IconTrash stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Bin</div></button>
+            <div className={styles.contentPanel}>
+
+                <div className={styles.toolColumn}>
+                
+                    <button className={styles.cBtn} onClick={handleUpload}>
+                        <IconPlus size={50} color="red" stroke={2}/>
+                    </button>
+
+                    <button className={styles.ca2Btn} onClick={handleLogout}>
+                        <IconUser size={50} color="red"/>
+                    </button>
+
+                    <button className={styles.c2Btn} onClick={handleLogout}>
+                        <IconPencilMinus size={50} color="red"/>
+                    </button>
+
+                    <button className={styles.c2Btn} onClick={handleLogout}>
+                        <IconCalendarMinus size={50} color="red"/>
+                    </button>
+
                 </div>
-                <div className={styles.storageQuota}>Storage</div>
-            </div>
 
-
-            <div className={styles.mainContent}>
-                {Object.entries(files).map(([filename, ext], index) => (
+                <div className={styles.mainContent}>
+                    {Object.entries(files).map(([filename, ext], index) => (
                     <div
                     key={index}
                     className={`${styles.fileCard} ${selectedFile === filename+ext ? styles.selected : ''}`}
@@ -139,28 +161,23 @@ function Cave(){
                         <span>{getIcon(ext)}</span>
                         <span>{filename}{ext}</span>
                     </div>
-                ))}
-            </div>
+                    ))}
+                </div>
 
+                <div className={styles.rightPanel}>
+                    
+                    <div className={styles.dirBrowse}>
+                        <button className={styles.RPanelBtn}><IconHome stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Home</div></button>
+                        <button className={styles.RPanelBtn}><IconDisc stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Cave</div></button>
+                        <button className={styles.RPanelBtn}><IconTrash stroke={2} color="red"/><div className={styles.TagRPanelBtn}>Bin</div></button>
+                    </div>
+                        <div className={styles.storageQuota}>
+                            <div>Used: {storage.storage_used} GB</div>
+                            <div>Quota: {storage.storage_quota} GB</div>
+                        </div>
+                </div>
 
-            <div className={styles.toolColumn}>
-                <button className={styles.cBtn} onClick={handleUpload}>
-                    <IconPlus size={50} color="red" stroke={2}/>
-                </button>
-
-                <button className={styles.ca2Btn} onClick={handleLogout}>
-                    <IconUser size={50} color="red"/>
-                </button>
-
-                <button className={styles.c2Btn} onClick={handleLogout}>
-                    <IconPencilMinus size={50} color="red"/>
-                </button>
-
-                <button className={styles.c2Btn} onClick={handleLogout}>
-                    <IconCalendarMinus size={50} color="red"/>
-                </button>
-
-            </div>
+            </div>  
             
         </div>
     )

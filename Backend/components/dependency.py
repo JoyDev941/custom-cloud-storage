@@ -45,9 +45,11 @@ def get_file_list(data : dict, conn, cur):
 
         username = data["username"]
 
-        cur.execute("SELECT storage_path FROM users WHERE username = %s", (username,))
+        cur.execute("SELECT storage_path, storage_used, storage_quota FROM users WHERE username = %s", (username,))
         result = cur.fetchone()
         storage_path = result[0]
+        storage_used = round(int(result[1]) / (1024 ** 3), 2)
+        storage_quota = round(int(result[2]) / (1024 ** 3), 2)
 
         user_content = os.listdir(storage_path)
 
@@ -63,7 +65,7 @@ def get_file_list(data : dict, conn, cur):
             else:
                 files[name] = ext
 
-        return { "content" : files}
+        return { "content" : files, "storage_used" : storage_used, "storage_quota": storage_quota}
 
     except FileNotFoundError:
 
